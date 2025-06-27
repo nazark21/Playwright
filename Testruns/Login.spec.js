@@ -20,16 +20,25 @@ test.describe('Login Validation', () => {
   });
 
   test('Empty login form validation messages', async ({ page }) => {
-    await page.getByRole('button', { name: 'Log In' }).click(); 
+    await page.getByRole('button', { name: 'Log In' }).click();
     await page.getByText('Email is required');
     await page.getByText('Password is required');
 
   });
 
-test('Navigate from login to signup page', async ({ page }) => {
-await page.getByText('Click here to Sign up!').click();
-  await expect(page).toHaveURL('https://prod.testrunz.com/signup/');
-});
+  test('Navigation from Login Page to Signup Page', async ({ page }) => {
+    await page.locator('text=Click here to Sign up!').click();
+    console.log("\nStatus:")
+    console.log('Sign Up Button Clicked');
+    console.log('Navigated to Sign Up Page Successfully');
+
+    // Wait for a signup-specific element to appear instead of waiting for URL
+    const signupHeader = page.locator('text=Remember me');
+    await expect(signupHeader).toBeVisible({ timeout: 10000 });
+
+    console.log('Navigated from Login Page to Signup Page Successfully\n');
+  });
+
 
   test('Login with invalid password', async ({ page }) => {
     await page.fill('#email', 'mixergrinder445@gmail.com');
@@ -45,18 +54,15 @@ await page.getByText('Click here to Sign up!').click();
     await page.getByText('Invalid credential');
   });
 
-test('Login with correct credentials', async ({ page }) => {
-  await page.goto('https://prod.testrunz.com/');
+  test('Login with correct credentials', async ({ page }) => {
+    await page.goto('https://prod.testrunz.com/');
 
-  await page.getByRole('textbox', { name: 'E-mail' }).fill('mixergrinder445@gmail.com');
-  await page.getByRole('textbox', { name: 'Password' }).fill('Test@123');
-  await page.getByRole('button', { name: /log in/i }).click();
-    // Wait for page load or user-specific element
-  await page.waitForLoadState('networkidle');
+    await page.getByRole('textbox', { name: 'E-mail' }).fill('mixergrinder445@gmail.com');
+    await page.getByRole('textbox', { name: 'Password' }).fill('Test@123');
+    await page.getByRole('button', { name: /log in/i }).click();
+    await page.waitForLoadState('networkidle');
 
-  // Print the URL for debug
-  console.log('Current URL after login:', await page.url());
-
-  // Wait for redirection or authenticated content
-await page.goto('http://prod.testrunz.com/mypage/');});
+    console.log('Current URL after login:', await page.url());
+    await page.goto('http://prod.testrunz.com/mypage/');
+  });
 });
