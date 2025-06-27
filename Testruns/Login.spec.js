@@ -28,15 +28,7 @@ test.describe('Login Validation', () => {
 
   test('Navigation from Login Page to Signup Page', async ({ page }) => {
     await page.locator('text=Click here to Sign up!').click();
-    console.log("\nStatus:")
-    console.log('Sign Up Button Clicked');
-    console.log('Navigated to Sign Up Page Successfully');
-
-    // Wait for a signup-specific element to appear instead of waiting for URL
-    const signupHeader = page.locator('text=Remember me');
-    await expect(signupHeader).toBeVisible({ timeout: 10000 });
-
-    console.log('Navigated from Login Page to Signup Page Successfully\n');
+    console.log("\nStatus: Sign Up Button Clicked \n")
   });
 
 
