@@ -90,7 +90,70 @@ test.describe("SignUp Page TestScript ", () => {
   });
 
 
-  test("Login with already existing user credentials shows error toast", async ({
+const generateValidUser = () => {
+  const randomString = (len = 6) =>
+    Array.from({ length: len }, () =>
+      String.fromCharCode(97 + Math.floor(Math.random() * 26))
+    ).join("");
+
+  const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
+
+  const firstName = capitalize(randomString());
+  const lastName = capitalize(randomString());
+  const email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}+${Date.now()}@example.com`;
+
+  // Valid password: uppercase, lowercase, number, special char, min 8 chars
+  const password = `Aa1@${randomString(5)}`;
+
+  return { firstName, lastName, email, password };
+};
+
+test("SignUp with random valid credentials and see success toast + redirect", async ({ page }) => {
+  const { firstName, lastName, email, password } = generateValidUser();
+
+  const fillAndBlur = async (name, value) => {
+    const field = page.locator(`input[name="${name}"]`);
+    await field.click();
+    await field.fill(value);
+    await field.press("Tab");
+  };
+
+  // Fill form with valid data
+  await fillAndBlur("firstName", firstName);
+  await fillAndBlur("lastName", lastName);
+  await fillAndBlur("email", email);
+  await fillAndBlur("password", password);
+  await fillAndBlur("confirm_password", password);
+
+  const rememberMe = page.locator('input[type="checkbox"][value="remember"]');
+  const terms = page.locator('input[name="termsAndConditions"]');
+
+  if (!(await rememberMe.isChecked())) {
+    await rememberMe.click();
+  }
+
+  if (!(await terms.isChecked())) {
+    await terms.click();
+  }
+
+  await page.waitForTimeout(1000);
+
+  const signUpButton = page.getByRole("button", { name: /signup for free/i });
+  await expect(signUpButton).toBeEnabled({ timeout: 5000 });
+  await signUpButton.click();
+
+  // ✅ Expect success toast
+  const successToast = page.locator("text=Welcome to Testruns! You've signed up successfully! Please verify your email.");
+  await expect(successToast).toBeVisible({ timeout: 15000 });
+
+  // ✅ Expect redirect to /mypage
+  await expect(page).toHaveURL(/\/login/, { timeout: 8000 });
+
+  console.log(`🟢 Test passed for user: ${email}`);
+
+  });
+
+  test("SignIn with already existing user credentials shows error toast", async ({
     page,
   }) => {
     // Helper to fill and blur input fields
